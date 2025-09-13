@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SVG Drawing Tool</title>
+  <style>
+    body {
+      background: #f4f6fb;
+      font-family: 'Poppins', Arial, sans-serif;
+      padding: 30px;
+    }
+    .svg-container {
+      width: 100%;
+      max-width: 650px;
+      margin: 40px auto;
+      background: #fff;
+      border: 2px solid #e3e7ed;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 24px 16px 20px 16px;
+    }
+    h2 {
+      margin-top: 0;
+      font-weight: 600;
+      color: #222;
+      letter-spacing: 0.02em;
+    }
+    .svg-draw-area {
+      width: 95%;
+      height: 380px;
+      border: 2px solid #222;
+      background: #fafbfc;
+      display: block;
+      margin: 0 auto;
+      cursor: crosshair;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="svg-container">
+    <h2>SVG Drawing Tool</h2>
+    <svg class="svg-draw-area" id="svgCanvas" width="600" height="350"></svg>
+  </div>
+  <script>
+    const svg = document.getElementById('svgCanvas');
+    let drawing = false;
+    let lastX = 0, lastY = 0;
+    let currentPath = null;
+
+    // Utility to get mouse coordinates relative to SVG
+    function getSVGCoords(evt) {
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+
+    svg.addEventListener('mousedown', function(evt) {
+      drawing = true;
+      const {x, y} = getSVGCoords(evt);
+      lastX = x;
+      lastY = y;
+      // Create a new SVG polyline for each stroke
+      currentPath = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      currentPath.setAttribute("points", `${x},${y}`);
+      currentPath.setAttribute("stroke", "#2196f3");
+      currentPath.setAttribute("stroke-width", "2");
+      currentPath.setAttribute("fill", "none");
+      svg.appendChild(currentPath);
+    });
+
+    svg.addEventListener('mousemove', function(evt) {
+      if (!drawing) return;
+      const {x, y} = getSVGCoords(evt);
+      let points = currentPath.getAttribute("points");
+      points += ` ${x},${y}`;
+      currentPath.setAttribute("points", points);
+      lastX = x;
+      lastY = y;
+    });
+
+    window.addEventListener('mouseup', function(evt) {
+      if (drawing) {
+        drawing = false;
+        currentPath = null;
+      }
+    });
+  </script>
+</body>
+</html>
